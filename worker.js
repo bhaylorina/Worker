@@ -5,8 +5,11 @@ export default {
 
     console.log(`[START] Request aayi hai: ${request.url}`);
     
+    // Aapka DuckDNS Domain
+    const DUCKDNS_DOMAIN = "sonyrip.duckdns.org"; 
+
     if (!targetUrlStr || (!targetUrlStr.startsWith("http://") && !targetUrlStr.startsWith("https://"))) {
-      return new Response("Doctor sahab ka Universal Proxy Active hai! \nKripya URL ko path mein lagayein.", { status: 200 });
+      return new Response("Doctor sahab ka Universal Proxy! \nKripya URL ko path mein lagayein.", { status: 200 });
     }
 
     try {
@@ -37,16 +40,15 @@ export default {
       const response = await fetch(targetUrlStr, fetchOptions);
       console.log(`[RESPONSE] Target Server Status: ${response.status}`);
 
-      // --- REDIRECT HANDLER ---
+      // --- REDIRECT HANDLER (IP to DuckDNS Swap) ---
       if ([301, 302, 303, 307, 308].includes(response.status)) {
         const location = response.headers.get("Location");
         if (location) {
           let locationUrl = new URL(location, targetUrlStr);
           
-          // BRAMHASTRA 4: IP to Domain Fix (1003 Error Bypass)
           if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(locationUrl.hostname)) {
-              console.log(`[FIX] Redirect me IP (${locationUrl.hostname}) mila. CF 1003 error rokne ke liye isko Domain (${targetObj.hostname}) se badal rahe hain.`);
-              locationUrl.hostname = targetObj.hostname;
+              console.log(`[FIX] IP mila! Usko ${DUCKDNS_DOMAIN} se badal rahe hain taaki 1003 error na aaye.`);
+              locationUrl.hostname = DUCKDNS_DOMAIN;
           }
 
           const proxiedLocation = url.origin + "/" + locationUrl.toString();
@@ -63,7 +65,7 @@ export default {
         }
       }
 
-      // --- M3U8 REWRITER ---
+      // --- M3U8 REWRITER (IP to DuckDNS Swap) ---
       const contentType = response.headers.get("Content-Type") || "";
       if (contentType.toLowerCase().includes("mpegurl") || targetUrlStr.toLowerCase().includes(".m3u8")) {
         const m3u8Text = await response.text();
@@ -72,9 +74,9 @@ export default {
           const trimmedLine = line.trim();
           if (trimmedLine && !trimmedLine.startsWith("#")) {
             let chunkUrl = new URL(trimmedLine, targetUrlStr);
-            // M3U8 ke andar bhi IP ko Domain me badlo
+            
             if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(chunkUrl.hostname)) {
-                chunkUrl.hostname = targetObj.hostname;
+                chunkUrl.hostname = DUCKDNS_DOMAIN;
             }
             return url.origin + "/" + chunkUrl.toString();
           }
@@ -92,7 +94,7 @@ export default {
         });
       }
 
-      // --- NORMAL CHUNKS ---
+      // --- NORMAL VIDEO CHUNKS ---
       const resHeaders = new Headers(response.headers);
       resHeaders.set("Access-Control-Allow-Origin", "*"); 
       return new Response(response.body, {
