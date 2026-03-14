@@ -1,3 +1,7 @@
 name = "doc"
 compatibility_date = "2024-03-14"
-main = "worker.js"  # Agar aapki file ka naam worker.js hai toh
+main = "worker.js"
+
+[observability.logs]
+enabled = true
+invocation_logs = true
