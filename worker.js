@@ -30,7 +30,7 @@ export default {
       // 5. Asli Server se video/data fetch karo
       let response = await fetch(newRequest);
 
-      // 6. Response ko wapas bhejne se pehle usme CORS Headers daal do 
+      // 6. Response ko wapas bhejne se pe usme CORS Headers daal do 
       // (Taaki ExoPlayer ya App koi nakhre na kare)
       let newResponse = new Response(response.body, response);
       newResponse.headers.set("Access-Control-Allow-Origin", "*");
